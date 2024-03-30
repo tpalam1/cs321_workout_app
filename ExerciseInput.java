@@ -69,14 +69,12 @@ public class ExerciseInput {
     }
   }
 
-  private void appendWeightLabel(JFrame exerciseInput){
+  private void appendWeightLabel(){
     JLabel weightLabel = new JLabel("What is your bodyweight?");
-    weightLabel.setVisible(true);
     exerciseInput.add(weightLabel);
 
     SpinnerModel bodyWeight = new SpinnerNumberModel(0, 0, 300, 1);
     JSpinner weightSpinner = new JSpinner(bodyWeight);
-    weightSpinner.setVisible(true);
     exerciseInput.add(weightSpinner);
   }
 
@@ -108,6 +106,42 @@ public class ExerciseInput {
     exerciseInput.add(repSpinner);
   }
 
+  /**
+   * Prompts the user to input the number of sets they did an exercise.
+   */
+  private void promptSets(){
+    JLabel setCountLabel = new JLabel("How many sets?");
+    exerciseInput.add(setCountLabel);
+
+    SpinnerModel setCount = new SpinnerNumberModel(1, 1, 10, 1);
+    JSpinner setSpinner = new JSpinner(setCount);
+    exerciseInput.add(setSpinner);
+  }
+
+  /**
+   * Prompts the user to input the weight they did an exercise.
+   */
+  private void promptWeights(){
+    JLabel setCountLabel = new JLabel("How heavy were the weights?");
+    exerciseInput.add(setCountLabel);
+
+    SpinnerModel setCount = new SpinnerNumberModel(2.5, 2.5, 350, 2.5);
+    JSpinner setSpinner = new JSpinner(setCount);
+    exerciseInput.add(setSpinner);
+  }
+
+  /**
+   * Prompts the user to input their bodyweight.
+   */
+  private void promptBodyWeight(){
+    JLabel setCountLabel = new JLabel("What is your bodyweight [lbs]?");
+    exerciseInput.add(setCountLabel);
+
+    SpinnerModel setCount = new SpinnerNumberModel(120, 2.5, 350, 1);
+    JSpinner setSpinner = new JSpinner(setCount);
+    exerciseInput.add(setSpinner);
+  }
+
   private void initializeWindow(){
     exerciseInput = new JFrame();
     exerciseInput.setSize(400, 400);
@@ -122,16 +156,36 @@ public class ExerciseInput {
   private void appendWeightLabelIfNecessary(Exercise currChoice){
     assert currChoice != null;
     if(currChoice.isAssisted()){
-      appendWeightLabel(exerciseInput);
+      appendWeightLabel();
     }
+  }
+
+  private void promptIfAssistedExercise(){
+    JLabel setCountLabel = new JLabel("Is this exercise assisted?");
+    exerciseInput.add(setCountLabel);
+
+    SpinnerModel setCount = new SpinnerNumberModel(0, 0, 1, 1);
+    JSpinner setSpinner = new JSpinner(setCount);
+    exerciseInput.add(setSpinner);
+  }
+
+  private void displayTrueWeightsLifted(int weightLifted, int bodyWeight, int isAssisted){
+    int trueWeight = (isAssisted == 1) ? weightLifted - bodyWeight : weightLifted;
+    JLabel trueWeightLifted = new JLabel("The true amount of weight lifted is " + trueWeight);
+    exerciseInput.add(trueWeightLifted);
   }
 
   public ExerciseInput(){
     initializeWindow();
 
-    Exercise currChoice = (Exercise) promptExercise().getSelectedItem();
-    appendWeightLabelIfNecessary(currChoice);
+    promptExercise();
     promptReps();
+    promptSets();
+    promptWeights();
+    promptIfAssistedExercise();
+    promptBodyWeight();
+
+    // displayTrueWeightsLifted(weightLifted, bodyWeight, isAssisted);
   }
 
   private void demo() {
