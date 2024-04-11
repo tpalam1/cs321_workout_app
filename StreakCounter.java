@@ -32,6 +32,10 @@ public class StreakCounter {
 	public int getStreak() {
 		return streak;
 	}
+
+	public int getStreakFreezes() {
+		return streakFreezes;
+	}
 	
 	public void streakUpdate() {
 		if(workedOutToday)
