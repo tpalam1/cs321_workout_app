@@ -1,21 +1,21 @@
-Deadlift - Glutes, Quadriceps
-Bar Dip - Chest, Triceps
-Bench Press - Chest, Tricep
-Front Hold - Front Deltoid, Lateral Deltoid
-Push Press - Front Deltoid, Quads
-Barbell Curl - Biceps, Forearm Flexors
-Bodyweight Curls - Biceps, Lats
-Bench Dip - Triceps, Chest
-Barbell Lunge - Quads, Glutes
-Leg Press - Quads, Glutes
-Barbell Row - Lats, Trapezius
-Hang Clean - Glutes, Lower Back
-Pull Ups - Lats, Biceps
-Step Ups - Quads, Hamstrings
-Hip Thrust - Glutes, Adductors
-Crunches - Abs, Obliques
-Plank - Abs, Obliques
-Squat - Quads, Calves
-Calf Raise - Calves, None
-Hang Snatch - Glutes, Lower Back
+Deadlift - Glutes
+Bar Dip - Chest
+Bench Press - Chest
+Front Hold - Front Deltoid
+Push Press - Front Deltoid
+Barbell Curl - Biceps
+Bodyweight Curls - Biceps
+Bench Dip - Triceps
+Barbell Lunge - Quads
+Leg Press - Quads
+Barbell Row - Lats
+Hang Clean - Glutes
+Pull Ups - Lats
+Step Ups - Quads
+Hip Thrust - Glutes
+Crunches - Abs
+Plank - Abs
+Squat - Quads
+Calf Raise - Calves
+Hang Snatch - Glutes
 
