@@ -14,6 +14,10 @@ public class ExerciseInput {
   private JFrame exerciseInput;
 
   private Exercise[] choices;
+  
+  private Notifications notif = new Notifications();
+  private StreakCounter streak = new StreakCounter();
+  private JLabel streakMsg = new JLabel("Streak: " + streak.getStreak() + "	Streak Freezes: " + streak.getStreakFreezes(), JLabel.CENTER);
 
   /**
    * Loads a list of assisted exercises.
@@ -169,6 +173,18 @@ public class ExerciseInput {
 
     return saveButton;
   }
+  
+  private JButton promptNotif(int on){
+	  JButton notifButton;
+	  if(on == 1) {
+		  notifButton = new JButton("Notifications ON");
+	  }
+	  else {
+    	notifButton = new JButton("Notifications OFF");
+	  }
+	  exerciseInput.add(notifButton);
+	  return notifButton;
+  }
 
   public ExerciseInput() throws AWTException {
     initializeWindow();
@@ -186,7 +202,9 @@ public class ExerciseInput {
     JButton saveButton = promptSave();
 
     Exercise exercise = (Exercise) exerciseJComboBox.getSelectedItem();
-    Notifications.main(new String[]{""});
+    
+    JButton notifOnButton = promptNotif(1);
+    JButton notifOffButton = promptNotif(0);
 
     int countReps = (int) repSpinner.getValue();
     int countSets = (int) setSpinner.getValue();
@@ -208,13 +226,34 @@ public class ExerciseInput {
               exerciseLog, exercise, countReps, countSets, weightAmount, isAssisted, bodyWeight);
 
           displaySaveSuccessful(saveButton);
+          
+          streak.streakUpdate();
+          streakMsg.setText("Streak: " + streak.getStreak() + "	Streak Freezes: " + streak.getStreakFreezes());
+          
         } catch (FileNotFoundException ex) {
           throw new RuntimeException(ex);
         }
       }
     });
-
+    
+    notifOnButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        	System.out.println("This line has been triggered");
+        	notif.notifOn();
+        	notif.notif();
+        }
+    });
+    
+    notifOffButton.addActionListener(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+        	System.out.println("This line has been triggered");
+        	notif.notifOff();
+        }
+    });
     // displayTrueWeightsLifted(weightLifted, bodyWeight, isAssisted);
+    exerciseInput.add(streakMsg);
   }
 
   private void displaySaveSuccessful(JButton saveButton){
