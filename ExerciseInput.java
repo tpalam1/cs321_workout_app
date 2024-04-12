@@ -4,23 +4,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
 
 public class ExerciseInput {
   private JFrame exerciseInput;
-
-  private JFrame msgLabel;
-
-  // private final String[] choices = {"Bicep curl", "Tricep extension"};
 
   private Exercise[] choices;
 
@@ -32,7 +23,7 @@ public class ExerciseInput {
     ArrayList<Exercise> assistedExerciseSet = new ArrayList<>();
 
     try {
-      Scanner s = new Scanner(new File("./ExerciseList/AssistedExerciseList.txt"));
+      Scanner s = new Scanner(new File("./exercises.txt"));
 
       while(s.hasNextLine()){
         Exercise currExercise = new Exercise(s.nextLine(), true);
@@ -53,7 +44,7 @@ public class ExerciseInput {
     ArrayList<Exercise> assistedExerciseList = loadAssistedExercises();
 
     try {
-      Scanner s = new Scanner(new File("./ExerciseList/ExerciseList.txt"));
+      Scanner s = new Scanner(new File("./exercises.txt"));
 
       while(s.hasNextLine()){
         String currLine = s.nextLine();
@@ -161,17 +152,6 @@ public class ExerciseInput {
     exerciseInput.setTitle("Add a new exercise");
   }
 
-  /**
-   * Adds a prompt to allow the user to add a weight label if the given exercise is assisted.
-   * @param currChoice the current exercise choice.
-   */
-  private void appendWeightLabelIfNecessary(Exercise currChoice){
-    assert currChoice != null;
-    if(currChoice.isAssisted()){
-      appendWeightLabel();
-    }
-  }
-
   private JSpinner promptIfAssistedExercise(){
     JLabel setCountLabel = new JLabel("Is this exercise assisted?");
     exerciseInput.add(setCountLabel);
@@ -183,12 +163,6 @@ public class ExerciseInput {
     return setSpinner;
   }
 
-  private void displayTrueWeightsLifted(int weightLifted, int bodyWeight, int isAssisted){
-    int trueWeight = (isAssisted == 1) ? weightLifted - bodyWeight : weightLifted;
-    JLabel trueWeightLifted = new JLabel("The true amount of weight lifted is " + trueWeight);
-    exerciseInput.add(trueWeightLifted);
-  }
-
   private JButton promptSave(){
     JButton saveButton = new JButton("SAVE");
     exerciseInput.add(saveButton);
@@ -196,7 +170,7 @@ public class ExerciseInput {
     return saveButton;
   }
 
-  public ExerciseInput(){
+  public ExerciseInput() throws AWTException {
     initializeWindow();
 
     File exerciseLog = new File("./exerciseLog.txt");
@@ -212,6 +186,8 @@ public class ExerciseInput {
     JButton saveButton = promptSave();
 
     Exercise exercise = (Exercise) exerciseJComboBox.getSelectedItem();
+    Notifications.main(new String[]{""});
+
     int countReps = (int) repSpinner.getValue();
     int countSets = (int) setSpinner.getValue();
     double weightAmount = (double) weightSpinner.getValue();
@@ -284,7 +260,7 @@ public class ExerciseInput {
     });
   }
 
-  public static void main(String[] args){
+  public static void main(String[] args) throws AWTException {
     ExerciseInput input = new ExerciseInput();
     input.demo();
   }
