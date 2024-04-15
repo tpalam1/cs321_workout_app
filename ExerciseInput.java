@@ -13,11 +13,9 @@ import java.util.Scanner;
 public class ExerciseInput {
   private JFrame exerciseInput;
 
-  private Exercise[] choices;
-
-  private Notifications notif = new Notifications();
-  private StreakCounter streak = new StreakCounter();
-  private JLabel streakMsg = new JLabel("Streak: " + streak.getStreak() + "	Streak Freezes: " + streak.getStreakFreezes(), JLabel.CENTER);
+  private final Notifications notif = new Notifications();
+  private final StreakCounter streak = new StreakCounter();
+  private final JLabel streakMsg = new JLabel("Streak: " + streak.getStreak() + "	Streak Freezes: " + streak.getStreakFreezes(), JLabel.CENTER);
 
   /**
    * Loads a list of assisted exercises.
@@ -66,15 +64,6 @@ public class ExerciseInput {
     } catch (FileNotFoundException e) {
       throw new RuntimeException(e);
     }
-  }
-
-  private void appendWeightLabel(){
-    JLabel weightLabel = new JLabel("What is your bodyweight?");
-    exerciseInput.add(weightLabel);
-
-    SpinnerModel bodyWeight = new SpinnerNumberModel(0, 0, 300, 1);
-    JSpinner weightSpinner = new JSpinner(bodyWeight);
-    exerciseInput.add(weightSpinner);
   }
 
   /**
@@ -187,7 +176,7 @@ public class ExerciseInput {
 	  return notifButton;
   }
 
-  public ExerciseInput() throws AWTException {
+  public ExerciseInput() {
     initializeWindow();
 
     File exerciseLog = new File("./exerciseLog.txt");
@@ -228,7 +217,7 @@ public class ExerciseInput {
           writeExerciseToLog(
               exerciseLog, exercise, countReps, countSets, weightAmount, isAssisted, bodyWeight);
 
-          displaySaveSuccessful(saveButton);
+          displaySaveSuccessful();
 
           streak.streakUpdate();
           streakMsg.setText("Streak: " + streak.getStreak() + "	Streak Freezes: " + streak.getStreakFreezes());
@@ -239,23 +228,17 @@ public class ExerciseInput {
       }
     });
 
-    notifOnButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        	System.out.println("This line has been triggered");
-        	notif.notifOn();
-        	notif.notif();
-        }
+    notifOnButton.addActionListener(e -> {
+      System.out.println("This line has been triggered");
+      notif.notifOn();
+      notif.notif();
     });
 
-    notifOffButton.addActionListener(new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-        	System.out.println("This line has been triggered");
-        	notif.notifOff();
-        }
+    notifOffButton.addActionListener(e -> {
+      System.out.println("This line has been triggered");
+      notif.notifOff();
     });
-    // displayTrueWeightsLifted(weightLifted, bodyWeight, isAssisted);
+
     exerciseInput.add(streakMsg);
   }
 
@@ -310,7 +293,7 @@ public class ExerciseInput {
     });
   }
 
-  public static void main(String[] args) throws AWTException {
+  public static void main(String[] args) {
     ExerciseInput input = new ExerciseInput();
     input.demo();
   }
