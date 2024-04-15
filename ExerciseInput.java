@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -6,6 +7,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -190,6 +192,7 @@ public class ExerciseInput {
     JSpinner bodyWeightSpinner = promptBodyWeight();
 
     JButton saveButton = promptSave();
+    JButton historyButton = promptHistory();
 
     Exercise exercise = (Exercise) exerciseJComboBox.getSelectedItem();
 
@@ -201,7 +204,7 @@ public class ExerciseInput {
     double weightAmount = (double) weightSpinner.getValue();
 
     assert isAssistedBox.getSelectedItem() != null;
-    boolean isAssisted = (boolean) isAssistedBox.getSelectedItem();
+    boolean isAssisted = (Boolean) isAssistedBox.getSelectedItem();
 
     double bodyWeight = (double) bodyWeightSpinner.getValue();
 
@@ -228,6 +231,23 @@ public class ExerciseInput {
       }
     });
 
+    historyButton.addActionListener(new ActionListener() {
+      /**
+       * Invoked when an action occurs.
+       *
+       * @param e the event to be processed
+       */
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          displayHistory(exerciseLog);
+        } catch (FileNotFoundException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    });
+
+
     notifOnButton.addActionListener(e -> {
       System.out.println("This line has been triggered");
       notif.notifOn();
@@ -240,6 +260,61 @@ public class ExerciseInput {
     });
 
     exerciseInput.add(streakMsg);
+  }
+
+  private void displayHistory(File exerciseLog) throws FileNotFoundException{
+    try{
+      JFrame historyFrame = new JFrame();
+      historyFrame.setLayout(new GridLayout(1,4,100,0));
+      historyFrame.setSize(500, 400);
+      historyFrame.setLayout(new FlowLayout());
+      historyFrame.setTitle("Exercise History");
+      historyFrame.addWindowListener(new WindowAdapter() {
+        public void windowClosing(WindowEvent windowEvent) {
+          historyFrame.dispose();
+        }
+      });
+      JPanel exercisePanel = new JPanel();
+      exercisePanel.setLayout(new BoxLayout(exercisePanel, BoxLayout.Y_AXIS));
+      JPanel repsPanel = new JPanel();
+      repsPanel.setLayout(new BoxLayout(repsPanel, BoxLayout.Y_AXIS));
+      JPanel setsPanel = new JPanel();
+      setsPanel.setLayout(new BoxLayout(setsPanel, BoxLayout.Y_AXIS));
+      JPanel weightPanel = new JPanel();
+      weightPanel.setLayout(new BoxLayout(weightPanel, BoxLayout.Y_AXIS));
+      historyFrame.add(exercisePanel);
+      historyFrame.add(repsPanel);
+      historyFrame.add(setsPanel);
+      historyFrame.add(weightPanel);
+
+      Scanner reader = new Scanner(exerciseLog);
+      String[] line;
+      JLabel header1 = new JLabel("Exercise");
+      header1.setBorder(new EmptyBorder(0, 0, 0, 100));
+      JLabel header2 = new JLabel("Reps");
+      header2.setBorder(new EmptyBorder(0, 0, 0, 40));
+      JLabel header3 = new JLabel("Sets\t");
+      header3.setBorder(new EmptyBorder(0, 0, 0, 40));
+      JLabel header4 = new JLabel("Weight Lifted(lbs)");
+      header4.setBorder(new EmptyBorder(0, 0, 0, 40));
+      exercisePanel.add(header1);
+      repsPanel.add(header2);
+      setsPanel.add(header3);
+      weightPanel.add(header4);
+      while(reader.hasNextLine()){
+        line = reader.nextLine().split(",", 0);
+        exercisePanel.add(new JLabel(line[0]));
+        repsPanel.add(new JLabel(line[1]));
+        setsPanel.add(new JLabel(line[2]));
+        weightPanel.add(new JLabel(line[3]));
+
+      }
+      reader.close();
+      historyFrame.setVisible(true);
+    } catch (IOException | SecurityException e){
+      throw new RuntimeException(e);
+    }
+
   }
 
   private void displaySaveSuccessful(){
@@ -281,6 +356,13 @@ public class ExerciseInput {
     } catch (FileNotFoundException | SecurityException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private JButton promptHistory(){
+    JButton historyButton = new JButton("HISTORY");
+    exerciseInput.add(historyButton);
+
+    return historyButton;
   }
 
   private void demo() {
