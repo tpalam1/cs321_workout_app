@@ -59,6 +59,10 @@ public class Notifications {
 	private void setDate() {
 		date = new Date();
 	}
+
+	public void notifOn() {
+		this.notifOn = true;
+	}
 	
 	public void notifOff() {
 		this.notifOn = false;
