@@ -5,10 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -178,10 +175,33 @@ public class ExerciseInput {
 	  return notifButton;
   }
 
+  /**
+   * Removes all characters from the File.
+   *
+   * @param file the file to clear.
+   */
+  private void clearFile(File file)  {
+    try {
+      Scanner scanner = new Scanner(file);
+      PrintWriter printWriter = new PrintWriter(file);
+
+      while (scanner.hasNext()) {
+        printWriter.write("");
+        scanner.next();
+      }
+
+      scanner.close();
+      printWriter.close();
+    } catch(FileNotFoundException | SecurityException e){
+      throw new RuntimeException(e);
+    }
+  }
+
   public ExerciseInput() {
     initializeWindow();
 
     File exerciseLog = new File("./exerciseLog.txt");
+    clearFile(exerciseLog);
 
     JComboBox<Exercise> exerciseJComboBox = promptExercise();
     JSpinner repSpinner = promptReps();
@@ -199,15 +219,6 @@ public class ExerciseInput {
     JButton notifOnButton = promptNotif(1);
     JButton notifOffButton = promptNotif(0);
 
-    int countReps = (int) repSpinner.getValue();
-    int countSets = (int) setSpinner.getValue();
-    double weightAmount = (double) weightSpinner.getValue();
-
-    assert isAssistedBox.getSelectedItem() != null;
-    boolean isAssisted = (Boolean) isAssistedBox.getSelectedItem();
-
-    double bodyWeight = (double) bodyWeightSpinner.getValue();
-
     saveButton.addActionListener(new ActionListener() {
       /**
        * Invoked when an action occurs.
@@ -216,6 +227,15 @@ public class ExerciseInput {
        */
       @Override
       public void actionPerformed(ActionEvent e) {
+        int countReps = (int) repSpinner.getValue();
+        int countSets = (int) setSpinner.getValue();
+        double weightAmount = (double) weightSpinner.getValue();
+
+        assert isAssistedBox.getSelectedItem() != null;
+        boolean isAssisted = (Boolean) isAssistedBox.getSelectedItem();
+
+        double bodyWeight = (double) bodyWeightSpinner.getValue();
+
         try {
           writeExerciseToLog(
               exerciseLog, exercise, countReps, countSets, weightAmount, isAssisted, bodyWeight);
@@ -348,12 +368,16 @@ public class ExerciseInput {
       double bodyWeight) throws FileNotFoundException {
 
     try {
-      PrintWriter writer = new PrintWriter(exerciseLog);
+      FileWriter fileWriter = new FileWriter(exerciseLog, true);
+      BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+
       double weightLifted = (isAssisted ? bodyWeight - weightAmount : weightAmount);
 
-      writer.println(exercise + "," + countReps + "," + countSets + "," + weightLifted);
-      writer.close();
-    } catch (FileNotFoundException | SecurityException e) {
+      String exerciseAsString = exercise + "," + countReps + "," + countSets + "," + weightLifted;
+      bufferedWriter.write(exerciseAsString);
+      bufferedWriter.newLine();
+      bufferedWriter.close();
+    } catch (SecurityException | IOException e) {
       throw new RuntimeException(e);
     }
   }
