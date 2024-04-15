@@ -13,8 +13,6 @@ import java.util.Scanner;
 public class ExerciseInput {
   private JFrame exerciseInput;
 
-  private Exercise[] choices;
-
   /**
    * Loads a list of assisted exercises.
    * @return a hash set containing the assisted exercises.
@@ -64,15 +62,6 @@ public class ExerciseInput {
     }
   }
 
-  private void appendWeightLabel(){
-    JLabel weightLabel = new JLabel("What is your bodyweight?");
-    exerciseInput.add(weightLabel);
-
-    SpinnerModel bodyWeight = new SpinnerNumberModel(0, 0, 300, 1);
-    JSpinner weightSpinner = new JSpinner(bodyWeight);
-    exerciseInput.add(weightSpinner);
-  }
-
   /**
    * Prompts the user to input an exercise name.
    * @return the JComboBox of exercise choices.
@@ -81,7 +70,7 @@ public class ExerciseInput {
     JLabel exerciseTypeLabel = new JLabel("What exercise are you doing?");
     exerciseInput.add(exerciseTypeLabel);
 
-    choices = loadExercises();
+    Exercise[] choices = loadExercises();
     final JComboBox<Exercise> exerciseTypeBox = new JComboBox<>(choices);
     exerciseTypeBox.setVisible(true);
     exerciseInput.add(exerciseTypeBox);
@@ -152,15 +141,16 @@ public class ExerciseInput {
     exerciseInput.setTitle("Add a new exercise");
   }
 
-  private JSpinner promptIfAssistedExercise(){
+  private JComboBox<Boolean> promptIfAssistedExercise(){
     JLabel setCountLabel = new JLabel("Is this exercise assisted?");
     exerciseInput.add(setCountLabel);
 
-    SpinnerModel setCount = new SpinnerNumberModel(0, 0, 1, 1);
-    JSpinner setSpinner = new JSpinner(setCount);
-    exerciseInput.add(setSpinner);
+    JComboBox<Boolean> isAssistedBox = new JComboBox<>(new Boolean[]{true, false});
+    isAssistedBox.setVisible(true);
 
-    return setSpinner;
+    exerciseInput.add(isAssistedBox);
+
+    return isAssistedBox;
   }
 
   private JButton promptSave(){
@@ -180,7 +170,7 @@ public class ExerciseInput {
     JSpinner setSpinner = promptSets();
     JSpinner weightSpinner = promptWeights();
 
-    JSpinner assistedSpinner = promptIfAssistedExercise();
+    JComboBox<Boolean> isAssistedBox = promptIfAssistedExercise();
     JSpinner bodyWeightSpinner = promptBodyWeight();
 
     JButton saveButton = promptSave();
@@ -191,7 +181,10 @@ public class ExerciseInput {
     int countReps = (int) repSpinner.getValue();
     int countSets = (int) setSpinner.getValue();
     double weightAmount = (double) weightSpinner.getValue();
-    boolean isAssisted = (int) assistedSpinner.getValue() == 1;
+
+    assert isAssistedBox.getSelectedItem() != null;
+    boolean isAssisted = (boolean) isAssistedBox.getSelectedItem();
+
     double bodyWeight = (double) bodyWeightSpinner.getValue();
 
     saveButton.addActionListener(new ActionListener() {
@@ -202,24 +195,29 @@ public class ExerciseInput {
        */
       @Override
       public void actionPerformed(ActionEvent e) {
-        System.out.println("This line has been triggered");
         try {
           writeExerciseToLog(
               exerciseLog, exercise, countReps, countSets, weightAmount, isAssisted, bodyWeight);
 
-          displaySaveSuccessful(saveButton);
+          displaySaveSuccessful();
         } catch (FileNotFoundException ex) {
           throw new RuntimeException(ex);
         }
       }
     });
-
-    // displayTrueWeightsLifted(weightLifted, bodyWeight, isAssisted);
   }
 
-  private void displaySaveSuccessful(JButton saveButton){
+  private void displaySaveSuccessful(){
+    JFrame saveFrame = new JFrame();
+    saveFrame.setSize(400, 100);
+    saveFrame.setLayout(new FlowLayout());
 
+    JPanel saveMessage = new JPanel();
+    saveMessage.add(new JLabel("Save successful!"));
 
+    saveFrame.add(saveMessage);
+
+    saveFrame.setVisible(true);
   }
 
   /**
