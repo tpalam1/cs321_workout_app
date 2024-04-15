@@ -1,17 +1,28 @@
 import javax.swing.*;
+import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class ExerciseInput {
   private JFrame exerciseInput;
+
+  private JFrame msgLabel;
+
+  // private final String[] choices = {"Bicep curl", "Tricep extension"};
 
   private Exercise[] choices;
   
@@ -27,7 +38,7 @@ public class ExerciseInput {
     ArrayList<Exercise> assistedExerciseSet = new ArrayList<>();
 
     try {
-      Scanner s = new Scanner(new File("./exercises.txt"));
+      Scanner s = new Scanner(new File("./ExerciseList/AssistedExerciseList.txt"));
 
       while(s.hasNextLine()){
         Exercise currExercise = new Exercise(s.nextLine(), true);
@@ -48,7 +59,7 @@ public class ExerciseInput {
     ArrayList<Exercise> assistedExerciseList = loadAssistedExercises();
 
     try {
-      Scanner s = new Scanner(new File("./exercises.txt"));
+      Scanner s = new Scanner(new File("./ExerciseList/ExerciseList.txt"));
 
       while(s.hasNextLine()){
         String currLine = s.nextLine();
@@ -156,6 +167,17 @@ public class ExerciseInput {
     exerciseInput.setTitle("Add a new exercise");
   }
 
+  /**
+   * Adds a prompt to allow the user to add a weight label if the given exercise is assisted.
+   * @param currChoice the current exercise choice.
+   */
+  private void appendWeightLabelIfNecessary(Exercise currChoice){
+    assert currChoice != null;
+    if(currChoice.isAssisted()){
+      appendWeightLabel();
+    }
+  }
+
   private JSpinner promptIfAssistedExercise(){
     JLabel setCountLabel = new JLabel("Is this exercise assisted?");
     exerciseInput.add(setCountLabel);
@@ -165,6 +187,12 @@ public class ExerciseInput {
     exerciseInput.add(setSpinner);
 
     return setSpinner;
+  }
+
+  private void displayTrueWeightsLifted(int weightLifted, int bodyWeight, int isAssisted){
+    int trueWeight = (isAssisted == 1) ? weightLifted - bodyWeight : weightLifted;
+    JLabel trueWeightLifted = new JLabel("The true amount of weight lifted is " + trueWeight);
+    exerciseInput.add(trueWeightLifted);
   }
 
   private JButton promptSave(){
@@ -186,7 +214,14 @@ public class ExerciseInput {
 	  return notifButton;
   }
 
-  public ExerciseInput() throws AWTException {
+  private JButton promptHistory(){
+    JButton historyButton = new JButton("HISTORY");
+    exerciseInput.add(historyButton);
+
+    return historyButton;
+  }
+
+  public ExerciseInput(){
     initializeWindow();
 
     File exerciseLog = new File("./exerciseLog.txt");
@@ -200,6 +235,7 @@ public class ExerciseInput {
     JSpinner bodyWeightSpinner = promptBodyWeight();
 
     JButton saveButton = promptSave();
+    JButton historyButton = promptHistory();
 
     Exercise exercise = (Exercise) exerciseJComboBox.getSelectedItem();
     
@@ -235,6 +271,23 @@ public class ExerciseInput {
         }
       }
     });
+
+    historyButton.addActionListener(new ActionListener() {
+      /**
+       * Invoked when an action occurs.
+       *
+       * @param e the event to be processed
+       */
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        try {
+          displayHistory(exerciseLog);
+        } catch (FileNotFoundException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    });
+
     
     notifOnButton.addActionListener(new ActionListener() {
         @Override
@@ -252,12 +305,68 @@ public class ExerciseInput {
         	notif.notifOff();
         }
     });
+    
     // displayTrueWeightsLifted(weightLifted, bodyWeight, isAssisted);
     exerciseInput.add(streakMsg);
   }
 
   private void displaySaveSuccessful(JButton saveButton){
 
+
+  }
+
+  private void displayHistory(File exerciseLog) throws FileNotFoundException{
+    try{
+      JFrame historyFrame = new JFrame();
+      historyFrame.setLayout(new GridLayout(1,4,100,0));
+      historyFrame.setSize(500, 400);
+      historyFrame.setLayout(new FlowLayout());
+      historyFrame.setTitle("Exercise History");
+      historyFrame.addWindowListener(new WindowAdapter() {
+        public void windowClosing(WindowEvent windowEvent) {
+          historyFrame.dispose();
+        }
+      });
+      JPanel exercisePanel = new JPanel();
+      exercisePanel.setLayout(new BoxLayout(exercisePanel, BoxLayout.Y_AXIS));
+      JPanel repsPanel = new JPanel();
+      repsPanel.setLayout(new BoxLayout(repsPanel, BoxLayout.Y_AXIS));
+      JPanel setsPanel = new JPanel();
+      setsPanel.setLayout(new BoxLayout(setsPanel, BoxLayout.Y_AXIS));
+      JPanel weightPanel = new JPanel();
+      weightPanel.setLayout(new BoxLayout(weightPanel, BoxLayout.Y_AXIS));
+      historyFrame.add(exercisePanel);
+      historyFrame.add(repsPanel);
+      historyFrame.add(setsPanel);
+      historyFrame.add(weightPanel);
+      
+      Scanner reader = new Scanner(exerciseLog);
+      String[] line;
+      JLabel header1 = new JLabel("Exercise");
+      header1.setBorder(new EmptyBorder(0, 0, 0, 100));
+      JLabel header2 = new JLabel("Reps");
+      header2.setBorder(new EmptyBorder(0, 0, 0, 40));
+      JLabel header3 = new JLabel("Sets\t");
+      header3.setBorder(new EmptyBorder(0, 0, 0, 40));
+      JLabel header4 = new JLabel("Weight Lifted(lbs)");
+      header4.setBorder(new EmptyBorder(0, 0, 0, 40));
+      exercisePanel.add(header1);
+      repsPanel.add(header2);
+      setsPanel.add(header3);
+      weightPanel.add(header4);
+      while(reader.hasNextLine()){
+        line = reader.nextLine().split("[,]", 0);
+        exercisePanel.add(new JLabel(line[0]));
+        repsPanel.add(new JLabel(line[1]));
+        setsPanel.add(new JLabel(line[2]));
+        weightPanel.add(new JLabel(line[3]));
+      
+      }
+      reader.close();
+      historyFrame.setVisible(true);
+    } catch (IOException | SecurityException e){
+      throw new RuntimeException(e);
+    }
 
   }
 
@@ -299,7 +408,7 @@ public class ExerciseInput {
     });
   }
 
-  public static void main(String[] args) throws AWTException {
+  public static void main(String[] args){
     ExerciseInput input = new ExerciseInput();
     input.demo();
   }
